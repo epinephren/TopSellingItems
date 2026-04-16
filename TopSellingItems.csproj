@@ -7,7 +7,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>TopSellingItems</AssemblyName>
     <RootNamespace>TopSellingItems</RootNamespace>
-    <Version>1.0.0.1</Version>
+    <Version>1.0.0.2</Version>
     <Description>Shows the most sold FFXIV items using Universalis dailySaleVelocity.</Description>
   </PropertyGroup>
 
