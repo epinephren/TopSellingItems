@@ -256,11 +256,6 @@ public sealed class MainWindow : Window, IDisposable
         {
             this.configuration.IncludeHq = includeHq;
         }
-        
-        ImGui.SameLine();
-        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 0.85f, 0.2f, 1f));
-        ImGui.TextUnformatted("(Warning: Do not go below 100 ms - this will likely redflag you for requests)");
-        ImGui.PopStyleColor();
 
         if (!this.isScanning)
         {
