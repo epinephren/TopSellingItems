@@ -10,6 +10,7 @@ public sealed class MarketScanService
     private readonly UniversalisClient universalisClient;
     private readonly ItemScanner itemScanner;
     private readonly WorldService worldService;
+    private const int RequestDelayMs = 120;
 
     public MarketScanService(
         IPluginLog log,
@@ -127,8 +128,7 @@ public sealed class MarketScanService
                     this.log.Warning(ex, $"TopSellingItems: skipping scope {scope} for batch {batchNumber}/{totalBatches}");
                 }
 
-                if (this.configuration.DelayBetweenRequestsMs > 0)
-                    await Task.Delay(this.configuration.DelayBetweenRequestsMs, cancellationToken);
+                await Task.Delay(RequestDelayMs, cancellationToken);
             }
 
             var cutoff = DateTimeOffset.UtcNow.AddDays(-this.configuration.HistoryDays);

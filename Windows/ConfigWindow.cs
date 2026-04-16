@@ -164,15 +164,7 @@ public sealed class ConfigWindow : Window
             this.configuration.IncludeHq = includeHq;
         }
 
-        var delayMs = this.configuration.DelayBetweenRequestsMs;
-        ImGui.SetNextItemWidth(120);
-        if (ImGui.InputInt("Delay ms", ref delayMs))
-        {
-            if (delayMs < 0)
-                delayMs = 0;
-
-            this.configuration.DelayBetweenRequestsMs = delayMs;
-        }
+  
 
         ImGui.Separator();
 

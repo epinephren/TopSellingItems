@@ -256,16 +256,11 @@ public sealed class MainWindow : Window, IDisposable
         {
             this.configuration.IncludeHq = includeHq;
         }
-
-        var delayMs = this.configuration.DelayBetweenRequestsMs;
-        ImGui.SetNextItemWidth(100);
-        if (ImGui.InputInt("Delay ms", ref delayMs))
-        {
-            if (delayMs < 0)
-                delayMs = 0;
-
-            this.configuration.DelayBetweenRequestsMs = delayMs;
-        }
+        
+        ImGui.SameLine();
+        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 0.85f, 0.2f, 1f));
+        ImGui.TextUnformatted("(Warning: Do not go below 100 ms - this will likely redflag you for requests)");
+        ImGui.PopStyleColor();
 
         if (!this.isScanning)
         {

@@ -19,7 +19,6 @@ public sealed class Configuration : IPluginConfiguration
     public int TopN { get; set; } = 50;
     public float MinDailySales { get; set; } = 1.0f;
     public bool IncludeHq { get; set; } = true;
-    public int DelayBetweenRequestsMs { get; set; } = 100;
     public int HistoryDays { get; set; } = 7;
     public int ScanItemLimit { get; set; } = 500;
     public float MinProfitPercent { get; set; } = 0.10f; // 10%
