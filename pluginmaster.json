@@ -5,7 +5,7 @@
     "Punchline": "Find the best flip & cross-DC profit opportunities.",
     "Description": "Scans Universalis data to find high-demand items and cross-datacenter arbitrage opportunities based on sales velocity and profit potential.",
     "InternalName": "TopSellingItems",
-    "AssemblyVersion": "1.0.0.0",
+    "AssemblyVersion": "1.0.0.1",
     "TestingAssemblyVersion": null,
     "RepoUrl": "https://github.com/epinephren/TopSellingItems",
     "ApplicableVersion": "any",
