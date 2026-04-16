@@ -13,7 +13,7 @@ public sealed class TopSellingItemsPlugin : IDalamudPlugin
 {
     public string Name => "TopSellingItems";
     private const string MainCommand = "/topselling";
-    private const string CommandName = "/tpsg";
+    private const string SecondCommand = "/tpsg";
 
     [PluginService] private static IDalamudPluginInterface PluginInterface { get; set; } = null!;
     [PluginService] private static ICommandManager CommandManager { get; set; } = null!;
@@ -67,6 +67,10 @@ public sealed class TopSellingItemsPlugin : IDalamudPlugin
         CommandManager.AddHandler(MainCommand, new CommandInfo(this.OnCommand)
         {
             HelpMessage = "Open the Top Selling Items window.",
+        });
+        CommandManager.AddHandler(SecondCommand, new CommandInfo(this.OnCommand)
+        {
+            HelpMessage = "shortcut for opening.",
         });
 
         PluginInterface.UiBuilder.Draw += this.DrawUi;

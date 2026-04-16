@@ -15,7 +15,7 @@
   "LoadSync": false,
   "CanUnloadAsync": false,
   "LoadPriority": 0,
-  "IconUrl": "resources/topSellingIcon.png",
+  "IconUrl": "https://raw.githubusercontent.com/epinephren/TopSellingItems/refs/heads/master/resources/topSellingIcon.png",
   "Punchline": "Shows the most sold items from Universalis.",
   "AcceptsFeedback": true
 }

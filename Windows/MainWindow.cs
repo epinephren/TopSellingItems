@@ -60,7 +60,7 @@ public sealed class MainWindow : Window, IDisposable
             this.configuration.ScanAllDatacenters = scanAllDcs;
         }
         ImGui.SameLine();
-        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 0f, 0f, 1f));
+        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 0.85f, 0.2f, 1f));
         ImGui.TextUnformatted("(Warning: Scanning ALL Datacenters may take several minutes! Also includes JP/US)");
         ImGui.PopStyleColor();
 
@@ -127,7 +127,7 @@ public sealed class MainWindow : Window, IDisposable
 
         var datacenters = this.worldService.GetDatacenters();
         var currentHomeDc = this.configuration.HomeDatacenter;
-        ImGui.SameLine();
+       
         ImGui.SetNextItemWidth(220);
         if (ImGui.BeginCombo("Home Datacenter", string.IsNullOrWhiteSpace(currentHomeDc) ? "<Select>" : currentHomeDc))
         {
@@ -217,8 +217,8 @@ public sealed class MainWindow : Window, IDisposable
             this.configuration.ScanItemLimit = scanItemLimit;
         }
         ImGui.SameLine();
-        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 0.3f, 0.3f, 1f));
-        ImGui.TextUnformatted(" Warning: increasing this number may result in crash!");
+        ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1f, 0.85f, 0.2f, 1f));
+        ImGui.TextUnformatted("Warning: increasing this number may result in crash!");
         ImGui.PopStyleColor();
 
         var minAbsoluteProfit = this.configuration.MinAbsoluteProfit;

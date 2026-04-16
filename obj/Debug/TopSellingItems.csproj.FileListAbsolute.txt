@@ -7,3 +7,4 @@ C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\
 C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.AssemblyInfo.cs
 C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.csproj.CoreCompileInputs.cache
 C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.dll
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.sourcelink.json
