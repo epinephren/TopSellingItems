@@ -1,0 +1,11 @@
+{
+  "Author": "Ryo N.",
+  "Name": "TopSellingItems",
+  "Punchline": "Shows the most sold items from Universalis.",
+  "Description": "Queries Universalis aggregated data and ranks items by dailySaleVelocity.",
+  "IconUrl": "resources/topSellingIcon.png",
+  "ApplicableVersion": "any",
+  "DalamudApiLevel": 14,
+  "TestingDalamudApiLevel": 14,
+  "Tags": ["marketboard", "universalis", "economy"]
+}

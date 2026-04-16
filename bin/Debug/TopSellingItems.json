@@ -1,0 +1,21 @@
+{
+  "Author": "Ryo N.",
+  "Name": "TopSellingItems",
+  "InternalName": "TopSellingItems",
+  "AssemblyVersion": "1.0.0.0",
+  "Description": "Shows the most sold FFXIV items using Universalis dailySaleVelocity.",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "marketboard",
+    "universalis",
+    "economy"
+  ],
+  "DalamudApiLevel": 14,
+  "LoadRequiredState": 0,
+  "LoadSync": false,
+  "CanUnloadAsync": false,
+  "LoadPriority": 0,
+  "IconUrl": "resources/topSellingIcon.png",
+  "Punchline": "Shows the most sold items from Universalis.",
+  "AcceptsFeedback": true
+}

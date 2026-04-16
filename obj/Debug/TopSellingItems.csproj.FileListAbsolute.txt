@@ -1,0 +1,9 @@
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\bin\Debug\TopSellingItems.json
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\bin\Debug\TopSellingItems.deps.json
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\bin\Debug\TopSellingItems.dll
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.csproj.AssemblyReference.cache
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.AssemblyInfoInputs.cache
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.AssemblyInfo.cs
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.csproj.CoreCompileInputs.cache
+C:\Users\root\Documents\TopSellingItems-Api14-history\TopSellingItems-Api14\obj\Debug\TopSellingItems.dll
