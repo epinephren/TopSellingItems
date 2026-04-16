@@ -1,6 +1,7 @@
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using System.Numerics;
+using System.Globalization;
 using TopSellingItems.Models;
 using TopSellingItems.Services;
 
@@ -300,7 +301,7 @@ public sealed class MainWindow : Window, IDisposable
         var sortedRows = this.rows;
 
         var sortSpecs = ImGui.TableGetSortSpecs();
-        if (sortSpecs.SpecsDirty && sortSpecs.SpecsCount > 0)
+        if (sortSpecs.SpecsCount > 0)
         {
             var spec = sortSpecs.Specs[0];
 
@@ -344,9 +345,9 @@ public sealed class MainWindow : Window, IDisposable
 
                 _ => this.rows
             };
-
-            sortSpecs.SpecsDirty = false;
         }
+        
+        
 
         for (var index = 0; index < sortedRows.Count; index++)
         {
@@ -373,17 +374,17 @@ public sealed class MainWindow : Window, IDisposable
 
             ImGui.TableNextColumn();
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.TextUnformatted(row.BestBuyPrice.ToString());
+            ImGui.TextUnformatted(FormatGil(row.BestBuyPrice));
             ImGui.PopStyleColor();
 
             ImGui.TableNextColumn();
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.TextUnformatted(row.HomeAverageSalePrice.ToString("F0"));
+            ImGui.TextUnformatted(FormatGil(row.HomeAverageSalePrice));
             ImGui.PopStyleColor();
 
             ImGui.TableNextColumn();
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.TextUnformatted(row.EstimatedProfit.ToString("F0"));
+            ImGui.TextUnformatted(FormatGil(row.EstimatedProfit));
             ImGui.PopStyleColor();
 
             ImGui.TableNextColumn();
@@ -398,11 +399,23 @@ public sealed class MainWindow : Window, IDisposable
 
             ImGui.TableNextColumn();
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.TextUnformatted(row.RouteScore.ToString("F0"));
+            ImGui.TextUnformatted(FormatGil(row.RouteScore));
             ImGui.PopStyleColor();
         }
 
         ImGui.EndTable();
+    }
+    
+    private static readonly CultureInfo GilCulture = new("de-DE");
+
+    private static string FormatGil(double value)
+    {
+        return value.ToString("N0", GilCulture);
+    }
+
+    private static string FormatGil(int value)
+    {
+        return value.ToString("N0", GilCulture);
     }
 
     private static Vector4 GetRowColor(CrossDcOpportunityRow row)
