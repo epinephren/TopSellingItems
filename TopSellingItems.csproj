@@ -16,4 +16,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="pluginmaster.json" />
+  </ItemGroup>
 </Project>

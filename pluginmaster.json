@@ -1,0 +1,28 @@
+﻿[
+  {
+    "Author": "Ryo N.",
+    "Name": "TopSellingItems",
+    "Punchline": "Find the best flip & cross-DC profit opportunities.",
+    "Description": "Scans Universalis data to find high-demand items and cross-datacenter arbitrage opportunities based on sales velocity and profit potential.",
+    "InternalName": "TopSellingItems",
+    "AssemblyVersion": "1.0.0.0",
+    "TestingAssemblyVersion": null,
+    "RepoUrl": "https://github.com/epinephren/TopSellingItems",
+    "ApplicableVersion": "any",
+    "DalamudApiLevel": 14,
+    "TestingDalamudApiLevel": 14,
+    "Tags": [
+      "marketboard",
+      "universalis",
+      "economy",
+      "trading",
+      "flipping"
+    ],
+    "IconUrl": "https://raw.githubusercontent.com/epinephren/TopSellingItems/main/resources/icon.png",
+    "DownloadLinkInstall": "https://github.com/epinephren/TopSellingItems/releases/latest/download/TopSellingItems.zip",
+    "DownloadLinkTesting": "https://github.com/epinephren/TopSellingItems/releases/latest/download/TopSellingItems.zip",
+    "DownloadLinkUpdate": "https://github.com/epinephren/TopSellingItems/releases/latest/download/TopSellingItems.zip",
+    "IsHide": false,
+    "IsTestingExclusive": false
+  }
+]
