@@ -347,7 +347,7 @@ public sealed class MainWindow : Window, IDisposable
             };
         }
         
-        
+        // A
 
         for (var index = 0; index < sortedRows.Count; index++)
         {
