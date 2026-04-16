@@ -19,10 +19,9 @@
       "flipping"
     ],
     "IconUrl": "https://raw.githubusercontent.com/epinephren/TopSellingItems/master/resources/64_topSellingIcon.png",
-    "DownloadLinkInstall": "https://github.com/epinephren/TopSellingItems/releases/latest/download/TopSellingItems.zip",
-    "DownloadLinkTesting": "https://github.com/epinephren/TopSellingItems/releases/latest/download/TopSellingItems.zip",
-    "DownloadLinkUpdate": "https://github.com/epinephren/TopSellingItems/releases/download/valid/TopSellingItems_v1.zip",
-    "IsHide": false,
+    "DownloadLinkInstall": "https://github.com/epinephren/TopSellingItems/releases/download/valid/TopSellingItems_v1.zip",
+    "DownloadLinkTesting": "https://github.com/epinephren/TopSellingItems/releases/download/valid/TopSellingItems_v1.zip",
+    "DownloadLinkUpdate": "https://github.com/epinephren/TopSellingItems/releases/download/valid/TopSellingItems_v1.zip
     "IsTestingExclusive": false
   }
 ]
