@@ -3,7 +3,7 @@
   "Name": "TopSellingItems",
   "Punchline": "Shows the most sold items from Universalis.",
   "Description": "Queries Universalis aggregated data and ranks items by dailySaleVelocity.",
-  "IconUrl": "https://raw.githubusercontent.com/epinephren/TopSellingItems/master/resources/topSellingIcon.png",
+  "IconUrl": "https://raw.githubusercontent.com/epinephren/TopSellingItems/master/resources/64_topSellingIcon.png",
   "ApplicableVersion": "any",
   "DalamudApiLevel": 14,
   "TestingDalamudApiLevel": 14,
