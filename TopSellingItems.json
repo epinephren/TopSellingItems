@@ -1,8 +1,8 @@
 {
-  "Author": "Ryo N.",
+  "Author": "epinephren@lepwn",
   "Name": "TopSellingItems",
   "InternalName": "TopSellingItems",
-  "AssemblyVersion": "1.0.0.2",
+  "AssemblyVersion": "1.0.1.0",
   "Description": "Scans Universalis data to find market opportunities.",
   "ApplicableVersion": "any",
   "Tags": [
