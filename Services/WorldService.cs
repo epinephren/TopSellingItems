@@ -7,18 +7,18 @@ namespace TopSellingItems.Services;
 public sealed class WorldService
 {
     private readonly List<WorldOption> worlds;
-    private readonly List<string> datacenters;
+    private readonly Dictionary<uint, string> datacenterNames;
 
     public WorldService(IDataManager dataManager)
     {
         var worldSheet = dataManager.GetExcelSheet<World>();
         var worldList = new List<WorldOption>();
-        var dcSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var dcNames = new Dictionary<uint, string>();
 
         if (worldSheet is null)
         {
             this.worlds = worldList;
-            this.datacenters = new List<string>();
+            this.datacenterNames = dcNames;
             return;
         }
 
@@ -31,58 +31,65 @@ public sealed class WorldService
             if (string.IsNullOrWhiteSpace(worldName))
                 continue;
 
-            string datacenterName;
-            try
-            {
-                datacenterName = world.DataCenter.Value.Name.ToString();
-            }
-            catch
-            {
+            var dataCenter = world.DataCenter.ValueNullable;
+            if (dataCenter == null)
                 continue;
-            }
 
+            var datacenterId = dataCenter.Value.RowId;
+            if (datacenterId == 0)
+                continue;
+
+            var datacenterName = dataCenter.Value.Name.ToString();
             if (string.IsNullOrWhiteSpace(datacenterName))
                 continue;
 
             worldList.Add(new WorldOption
             {
+                WorldId = world.RowId,
+                DatacenterId = datacenterId,
                 WorldName = worldName,
                 DatacenterName = datacenterName,
             });
-            dcSet.Add(datacenterName);
+
+            dcNames[datacenterId] = datacenterName;
         }
 
         this.worlds = worldList
-            .GroupBy(w => (w.WorldName, w.DatacenterName))
+            .GroupBy(w => w.WorldId)
             .Select(g => g.First())
             .OrderBy(w => w.DatacenterName, StringComparer.Ordinal)
             .ThenBy(w => w.WorldName, StringComparer.Ordinal)
             .ToList();
 
-        this.datacenters = dcSet
-            .OrderBy(dc => dc, StringComparer.Ordinal)
-            .ToList();
+        this.datacenterNames = dcNames;
     }
 
-    public IReadOnlyList<WorldOption> GetWorlds() => this.worlds;
+    public IReadOnlyList<WorldOption> GetWorlds()
+        => this.worlds;
 
-    public IReadOnlyList<string> GetDatacenters() => this.datacenters;
+    public IReadOnlyList<uint> GetDatacenterIds()
+        => this.datacenterNames.Keys
+            .OrderBy(id => this.datacenterNames[id], StringComparer.Ordinal)
+            .ToList();
 
-    public IReadOnlyList<WorldOption> GetWorldsForDatacenter(string? datacenter)
+    public string GetDatacenterName(uint datacenterId)
+        => this.datacenterNames.TryGetValue(datacenterId, out var name)
+            ? name
+            : $"Datacenter #{datacenterId}";
+
+    public IReadOnlyList<WorldOption> GetWorldsForDatacenter(uint datacenterId)
     {
-        if (string.IsNullOrWhiteSpace(datacenter))
+        if (datacenterId == 0)
             return this.worlds;
 
         return this.worlds
-            .Where(w => string.Equals(w.DatacenterName, datacenter, StringComparison.OrdinalIgnoreCase))
+            .Where(w => w.DatacenterId == datacenterId)
             .ToList();
     }
 
-    public WorldOption? GetWorldByName(string? worldName)
-    {
-        if (string.IsNullOrWhiteSpace(worldName))
-            return null;
+    public WorldOption? GetWorldById(uint worldId)
+        => this.worlds.FirstOrDefault(w => w.WorldId == worldId);
 
-        return this.worlds.FirstOrDefault(w => string.Equals(w.WorldName, worldName, StringComparison.OrdinalIgnoreCase));
-    }
+    public uint GetDatacenterIdForWorld(uint worldId)
+        => this.GetWorldById(worldId)?.DatacenterId ?? 0;
 }

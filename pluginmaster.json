@@ -18,7 +18,7 @@
       "trading",
       "flipping"
     ],
-    "IconUrl": "https://raw.githubusercontent.com/epinephren/TopSellingItems/master/resources/64_topSellingIcon.png",
+    "IconUrl": "https://raw.githubusercontent.com/epinephren/TopSellingItems/refs/heads/master/images/icon.png",
     "DownloadLinkInstall": "https://github.com/epinephren/TopSellingItems/releases/download/valid/TopSellingItems_v1.zip",
     "DownloadLinkTesting": "https://github.com/epinephren/TopSellingItems/releases/download/valid/TopSellingItems_v1.zip",
     "DownloadLinkUpdate": "https://github.com/epinephren/TopSellingItems/releases/download/valid/TopSellingItems_v1.zip",

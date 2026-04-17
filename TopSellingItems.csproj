@@ -8,16 +8,11 @@
     <AssemblyName>TopSellingItems</AssemblyName>
     <RootNamespace>TopSellingItems</RootNamespace>
     <Version>1.0.0.2</Version>
-    <Description>Shows the most sold FFXIV items using Universalis dailySaleVelocity.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="TopSellingItems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="pluginmaster.json" />
   </ItemGroup>
 </Project>

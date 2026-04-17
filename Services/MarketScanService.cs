@@ -10,6 +10,7 @@ public sealed class MarketScanService
     private readonly UniversalisClient universalisClient;
     private readonly ItemScanner itemScanner;
     private readonly WorldService worldService;
+
     private const int RequestDelayMs = 120;
 
     public MarketScanService(
@@ -34,7 +35,7 @@ public sealed class MarketScanService
 
         if (this.configuration.ScanItemLimit > 0 && itemIds.Count > this.configuration.ScanItemLimit)
         {
-            var random = new Random();
+            var random = Random.Shared;
             var shuffled = itemIds.ToList();
 
             for (var i = shuffled.Count - 1; i > 0; i--)
@@ -51,27 +52,36 @@ public sealed class MarketScanService
         const int batchSize = 100;
         var totalBatches = (int)Math.Ceiling(itemIds.Count / (double)batchSize);
 
-        var homeScope = this.configuration.SellOnHomeDatacenter
-            ? this.configuration.HomeDatacenter
-            : this.configuration.HomeWorld;
+        var homeWorld = this.worldService.GetWorldById(this.configuration.HomeWorldId);
+        if (homeWorld is null)
+            throw new InvalidOperationException("Home world is not set.");
 
-        if (string.IsNullOrWhiteSpace(homeScope))
-            throw new InvalidOperationException("Home datacenter/world is not set.");
+        var selectedWorld = this.worldService.GetWorldById(this.configuration.SelectedWorldId);
+        if (selectedWorld is null)
+            throw new InvalidOperationException("Selected world is not set.");
+
+        var homeScope = this.configuration.SellOnHomeDatacenter
+            ? homeWorld.DatacenterName
+            : homeWorld.WorldName;
 
         List<string> scanScopes;
         if (this.configuration.ScanAllDatacenters)
         {
-            scanScopes = this.worldService.GetDatacenters()
-                .Where(dc => !string.IsNullOrWhiteSpace(dc))
-                .Where(dc => !string.Equals(dc, this.configuration.HomeDatacenter, StringComparison.OrdinalIgnoreCase))
+            var homeDatacenterId = homeWorld.DatacenterId;
+
+            scanScopes = this.worldService.GetDatacenterIds()
+                .Where(id => id != 0)
+                .Where(id => id != homeDatacenterId)
+                .Select(this.worldService.GetDatacenterName)
+                .Where(name => !string.IsNullOrWhiteSpace(name))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
         else
         {
             var selectedScope = this.configuration.UseDatacenterScope
-                ? this.configuration.SelectedDatacenter
-                : this.configuration.SelectedWorld;
+                ? selectedWorld.DatacenterName
+                : selectedWorld.WorldName;
 
             if (string.IsNullOrWhiteSpace(selectedScope))
                 throw new InvalidOperationException("Selected datacenter/world is not set.");
@@ -90,7 +100,8 @@ public sealed class MarketScanService
             var batch = itemIds.Skip(i).Take(batchSize).ToArray();
 
             setStatus?.Invoke($"Scanning batch {batchNumber}/{totalBatches}...");
-            this.log.Info($"TopSellingItems: cross-DC batch {batchNumber}/{totalBatches}, home={homeScope}, items={batch.Length}");
+            this.log.Info(
+                $"TopSellingItems: cross-DC batch {batchNumber}/{totalBatches}, home={homeScope}, items={batch.Length}");
 
             List<UniversalisHistoryItem> homeHistory;
             try
@@ -102,13 +113,15 @@ public sealed class MarketScanService
             }
             catch (Exception ex)
             {
-                this.log.Error(ex, $"TopSellingItems: failed to fetch home history for batch {batchNumber}/{totalBatches}");
+                this.log.Error(ex,
+                    $"TopSellingItems: failed to fetch home history for batch {batchNumber}/{totalBatches}");
                 throw;
             }
 
             var homeHistoryByItem = homeHistory.ToDictionary(x => x.ItemId, x => x);
 
-            var foreignCurrentByScope = new Dictionary<string, Dictionary<uint, UniversalisCurrentItem>>(StringComparer.OrdinalIgnoreCase);
+            var foreignCurrentByScope =
+                new Dictionary<string, Dictionary<uint, UniversalisCurrentItem>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var scope in scanScopes)
             {
@@ -125,7 +138,8 @@ public sealed class MarketScanService
                 }
                 catch (Exception ex)
                 {
-                    this.log.Warning(ex, $"TopSellingItems: skipping scope {scope} for batch {batchNumber}/{totalBatches}");
+                    this.log.Warning(ex,
+                        $"TopSellingItems: skipping scope {scope} for batch {batchNumber}/{totalBatches}");
                 }
 
                 await Task.Delay(RequestDelayMs, cancellationToken);
@@ -162,7 +176,7 @@ public sealed class MarketScanService
 
                 var homeMinListingPrice = homeEntry.MinListingPrice > 0
                     ? homeEntry.MinListingPrice
-                    : (sales.Count > 0 ? sales.Min(s => s.PricePerUnit) : 0);
+                    : sales.Min(s => s.PricePerUnit);
 
                 UniversalisCurrentItem? bestBuy = null;
 

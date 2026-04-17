@@ -11,7 +11,6 @@ namespace TopSellingItems;
 
 public sealed class TopSellingItemsPlugin : IDalamudPlugin
 {
-    public string Name => "TopSellingItems";
     private const string MainCommand = "/topselling";
     private const string SecondCommand = "/tpsg";
 
@@ -38,18 +37,14 @@ public sealed class TopSellingItemsPlugin : IDalamudPlugin
         this.itemScanner = new ItemScanner(DataManager);
         this.worldService = new WorldService(DataManager);
 
-        if (string.IsNullOrWhiteSpace(this.configuration.SelectedDatacenter))
-            this.configuration.SelectedDatacenter = this.worldService.GetDatacenters().FirstOrDefault() ?? "Light";
+        var allWorlds = this.worldService.GetWorlds();
+        var firstWorld = allWorlds.FirstOrDefault();
 
-        if (string.IsNullOrWhiteSpace(this.configuration.SelectedWorld))
-            this.configuration.SelectedWorld = this.worldService.GetWorldsForDatacenter(this.configuration.SelectedDatacenter).FirstOrDefault()?.WorldName
-                ?? this.worldService.GetWorlds().FirstOrDefault()?.WorldName
-                ?? "Shiva";
-        if (string.IsNullOrWhiteSpace(this.configuration.HomeDatacenter))
-            this.configuration.HomeDatacenter = this.configuration.SelectedDatacenter;
+        if (this.configuration.SelectedWorldId == 0 && firstWorld is not null)
+            this.configuration.SelectedWorldId = firstWorld.WorldId;
 
-        if (string.IsNullOrWhiteSpace(this.configuration.HomeWorld))
-            this.configuration.HomeWorld = this.configuration.SelectedWorld;
+        if (this.configuration.HomeWorldId == 0)
+            this.configuration.HomeWorldId = this.configuration.SelectedWorldId;
 
         this.marketScanService = new MarketScanService(
             PluginLog,
@@ -57,7 +52,7 @@ public sealed class TopSellingItemsPlugin : IDalamudPlugin
             this.universalisClient,
             this.itemScanner,
             this.worldService);
-        
+
         this.mainWindow = new MainWindow(this.configuration, this.marketScanService, this.worldService);
         this.configWindow = new ConfigWindow(this.configuration, this.worldService);
 
@@ -68,9 +63,10 @@ public sealed class TopSellingItemsPlugin : IDalamudPlugin
         {
             HelpMessage = "Open the Top Selling Items window.",
         });
+
         CommandManager.AddHandler(SecondCommand, new CommandInfo(this.OnCommand)
         {
-            HelpMessage = "shortcut for opening.",
+            HelpMessage = "Shortcut for opening the Top Selling Items window.",
         });
 
         PluginInterface.UiBuilder.Draw += this.DrawUi;
@@ -85,6 +81,7 @@ public sealed class TopSellingItemsPlugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenConfigUi -= this.OpenConfigUi;
 
         CommandManager.RemoveHandler(MainCommand);
+        CommandManager.RemoveHandler(SecondCommand);
 
         this.windowSystem.RemoveAllWindows();
         this.mainWindow.Dispose();

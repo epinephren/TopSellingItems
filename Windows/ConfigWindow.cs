@@ -1,5 +1,7 @@
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Dalamud.Interface.Utility;
+using Dalamud.Interface.Utility.Raii;
 using System.Numerics;
 using TopSellingItems.Services;
 
@@ -15,7 +17,7 @@ public sealed class ConfigWindow : Window
     {
         this.configuration = configuration;
         this.worldService = worldService;
-        this.Size = new Vector2(520, 420);
+        this.Size = new Vector2(560, 520) * ImGuiHelpers.GlobalScale;
         this.SizeCondition = ImGuiCond.FirstUseEver;
     }
 
@@ -36,60 +38,32 @@ public sealed class ConfigWindow : Window
             this.configuration.UseDatacenterScope = useDc;
         }
 
-        var datacenters = this.worldService.GetDatacenters();
-        var currentDc = this.configuration.SelectedDatacenter;
+        this.DrawWorldSelector(
+            "Default Datacenter",
+            "Default World",
+            this.configuration.SelectedWorldId,
+            worldId => this.configuration.SelectedWorldId = worldId);
 
-        ImGui.SetNextItemWidth(220);
-        if (ImGui.BeginCombo("Default Datacenter", string.IsNullOrWhiteSpace(currentDc) ? "<Select>" : currentDc))
+        ImGui.Separator();
+        ImGui.TextUnformatted("Default home sell scope");
+
+        var sellOnHomeDc = this.configuration.SellOnHomeDatacenter;
+        if (ImGui.Checkbox("Sell on home datacenter by default", ref sellOnHomeDc))
         {
-            foreach (var dc in datacenters)
-            {
-                var isSelected = string.Equals(dc, currentDc, StringComparison.OrdinalIgnoreCase);
-                if (ImGui.Selectable(dc, isSelected))
-                {
-                    this.configuration.SelectedDatacenter = dc;
-
-                    var worlds = this.worldService.GetWorldsForDatacenter(dc);
-                    if (worlds.Count > 0 &&
-                        !worlds.Any(w => string.Equals(w.WorldName, this.configuration.SelectedWorld, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        this.configuration.SelectedWorld = worlds[0].WorldName;
-                    }
-                }
-
-                if (isSelected)
-                    ImGui.SetItemDefaultFocus();
-            }
-
-            ImGui.EndCombo();
+            this.configuration.SellOnHomeDatacenter = sellOnHomeDc;
         }
 
-        var worldsForDc = this.worldService.GetWorldsForDatacenter(this.configuration.SelectedDatacenter);
-
-        ImGui.SetNextItemWidth(260);
-        if (ImGui.BeginCombo("Default World", string.IsNullOrWhiteSpace(this.configuration.SelectedWorld) ? "<Select>" : this.configuration.SelectedWorld))
-        {
-            foreach (var world in worldsForDc)
-            {
-                var isSelected = string.Equals(world.WorldName, this.configuration.SelectedWorld, StringComparison.OrdinalIgnoreCase);
-                if (ImGui.Selectable(world.DisplayName, isSelected))
-                {
-                    this.configuration.SelectedWorld = world.WorldName;
-                    this.configuration.SelectedDatacenter = world.DatacenterName;
-                }
-
-                if (isSelected)
-                    ImGui.SetItemDefaultFocus();
-            }
-
-            ImGui.EndCombo();
-        }
+        this.DrawWorldSelector(
+            "Default Home Datacenter",
+            "Default Home World",
+            this.configuration.HomeWorldId,
+            worldId => this.configuration.HomeWorldId = worldId);
 
         ImGui.Separator();
         ImGui.TextUnformatted("Default scan settings");
 
         var topN = this.configuration.TopN;
-        ImGui.SetNextItemWidth(120);
+        ImGui.SetNextItemWidth(120 * ImGuiHelpers.GlobalScale);
         if (ImGui.InputInt("Default Top N", ref topN))
         {
             if (topN < 1)
@@ -99,7 +73,7 @@ public sealed class ConfigWindow : Window
         }
 
         var historyDays = this.configuration.HistoryDays;
-        ImGui.SetNextItemWidth(120);
+        ImGui.SetNextItemWidth(120 * ImGuiHelpers.GlobalScale);
         if (ImGui.InputInt("History days", ref historyDays))
         {
             if (historyDays < 1)
@@ -109,7 +83,7 @@ public sealed class ConfigWindow : Window
         }
 
         var scanItemLimit = this.configuration.ScanItemLimit;
-        ImGui.SetNextItemWidth(120);
+        ImGui.SetNextItemWidth(120 * ImGuiHelpers.GlobalScale);
         if (ImGui.InputInt("Scan item limit", ref scanItemLimit))
         {
             if (scanItemLimit < 1)
@@ -119,7 +93,7 @@ public sealed class ConfigWindow : Window
         }
 
         var minDailySales = this.configuration.MinDailySales;
-        ImGui.SetNextItemWidth(120);
+        ImGui.SetNextItemWidth(120 * ImGuiHelpers.GlobalScale);
         if (ImGui.InputFloat("Min sales/day", ref minDailySales))
         {
             if (minDailySales < 0)
@@ -129,7 +103,7 @@ public sealed class ConfigWindow : Window
         }
 
         var minAbsoluteProfit = this.configuration.MinAbsoluteProfit;
-        ImGui.SetNextItemWidth(120);
+        ImGui.SetNextItemWidth(120 * ImGuiHelpers.GlobalScale);
         if (ImGui.InputInt("Min profit", ref minAbsoluteProfit))
         {
             if (minAbsoluteProfit < 0)
@@ -139,7 +113,7 @@ public sealed class ConfigWindow : Window
         }
 
         var minProfitPercent = this.configuration.MinProfitPercent;
-        ImGui.SetNextItemWidth(120);
+        ImGui.SetNextItemWidth(120 * ImGuiHelpers.GlobalScale);
         if (ImGui.InputFloat("Min profit %", ref minProfitPercent))
         {
             if (minProfitPercent < 0)
@@ -149,7 +123,7 @@ public sealed class ConfigWindow : Window
         }
 
         var minSalesCount = this.configuration.MinSalesCount;
-        ImGui.SetNextItemWidth(120);
+        ImGui.SetNextItemWidth(120 * ImGuiHelpers.GlobalScale);
         if (ImGui.InputInt("Min sold units", ref minSalesCount))
         {
             if (minSalesCount < 1)
@@ -164,11 +138,69 @@ public sealed class ConfigWindow : Window
             this.configuration.IncludeHq = includeHq;
         }
 
-  
-
         ImGui.Separator();
 
         if (ImGui.Button("Save"))
             this.configuration.Save();
+    }
+
+    private void DrawWorldSelector(
+        string datacenterLabel,
+        string worldLabel,
+        uint currentWorldId,
+        Action<uint> setWorldId)
+    {
+        var currentWorld = this.worldService.GetWorldById(currentWorldId);
+        var currentDatacenterId = this.worldService.GetDatacenterIdForWorld(currentWorldId);
+        var datacenterIds = this.worldService.GetDatacenterIds();
+
+        ImGui.SetNextItemWidth(220 * ImGuiHelpers.GlobalScale);
+        using (var combo = ImRaii.Combo(
+                   datacenterLabel,
+                   currentDatacenterId == 0 ? "<Select>" : this.worldService.GetDatacenterName(currentDatacenterId)))
+        {
+            if (combo)
+            {
+                foreach (var datacenterId in datacenterIds)
+                {
+                    var datacenterName = this.worldService.GetDatacenterName(datacenterId);
+                    var isSelected = datacenterId == currentDatacenterId;
+
+                    if (ImGui.Selectable(datacenterName, isSelected))
+                    {
+                        var worlds = this.worldService.GetWorldsForDatacenter(datacenterId);
+                        if (worlds.Count > 0)
+                            setWorldId(worlds[0].WorldId);
+                    }
+
+                    if (isSelected)
+                        ImGui.SetItemDefaultFocus();
+                }
+            }
+        }
+
+        var worldsForDatacenter = this.worldService.GetWorldsForDatacenter(currentDatacenterId);
+
+        ImGui.SetNextItemWidth(260 * ImGuiHelpers.GlobalScale);
+        using (var combo = ImRaii.Combo(
+                   worldLabel,
+                   currentWorld?.WorldName ?? "<Select>"))
+        {
+            if (combo)
+            {
+                foreach (var world in worldsForDatacenter)
+                {
+                    var isSelected = world.WorldId == currentWorldId;
+
+                    if (ImGui.Selectable(world.DisplayName, isSelected))
+                    {
+                        setWorldId(world.WorldId);
+                    }
+
+                    if (isSelected)
+                        ImGui.SetItemDefaultFocus();
+                }
+            }
+        }
     }
 }

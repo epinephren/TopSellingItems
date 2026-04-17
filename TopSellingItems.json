@@ -1,11 +1,15 @@
 {
   "Author": "Ryo N.",
   "Name": "TopSellingItems",
-  "Punchline": "Shows the most sold items from Universalis.",
-  "Description": "Queries Universalis aggregated data and ranks items by dailySaleVelocity.",
-  "IconUrl": "https://raw.githubusercontent.com/epinephren/TopSellingItems/master/resources/64_topSellingIcon.png",
+  "InternalName": "TopSellingItems",
+  "AssemblyVersion": "1.0.0.2",
+  "Description": "Scans Universalis data to find market opportunities.",
   "ApplicableVersion": "any",
+  "Tags": [
+    "marketboard",
+    "universalis",
+    "economy"
+  ],
   "DalamudApiLevel": 14,
-  "TestingDalamudApiLevel": 14,
-  "Tags": ["marketboard", "universalis", "economy"]
+  "Punchline": "Find cross-DC market opportunities."
 }
