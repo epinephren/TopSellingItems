@@ -1,6 +1,6 @@
 # TopSellingItems
 
-Dalamud API 14 plugin that ranks items by estimated sales/day using Universalis sale history.
+Dalamud API 15 plugin that ranks items by estimated sales/day using Universalis sale history.
 
 ## Notes
 

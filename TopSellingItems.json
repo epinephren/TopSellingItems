@@ -2,7 +2,7 @@
   "Author": "epinephren-lepwn",
   "Name": "TopSellingItems",
   "InternalName": "TopSellingItems",
-  "AssemblyVersion": "1.0.2.0",
+  "AssemblyVersion": "1.0.3.1",
   "Description": "Scans Universalis data to find market opportunities.",
   "ApplicableVersion": "any",
   "Tags": [
@@ -10,6 +10,6 @@
     "universalis",
     "economy"
   ],
-  "DalamudApiLevel": 14,
+  "DalamudApiLevel": 15,
   "Punchline": "Find cross-DC market opportunities."
 }
