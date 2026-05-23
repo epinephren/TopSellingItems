@@ -1,0 +1,48 @@
+# Build output
+bin/
+obj/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# VS / VSCode
+.vs/
+.vscode/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.rsuser
+
+# NuGet
+packages/
+*.nupkg
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dalamud / local dev
+testing/
+dist/
+release/
+artifacts/
+
+# Generated plugin output
+*.zip
+
+# Temporary files
+*.tmp
+*.temp
+
+# ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# Runtime
+*.runtimeconfig.dev.json
