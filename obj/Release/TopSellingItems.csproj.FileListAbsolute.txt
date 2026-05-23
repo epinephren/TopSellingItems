@@ -1,0 +1,10 @@
+D:\Rider\FFXIV\TopSellingItems\bin\Release\TopSellingItems.json
+D:\Rider\FFXIV\TopSellingItems\bin\Release\TopSellingItems.deps.json
+D:\Rider\FFXIV\TopSellingItems\bin\Release\TopSellingItems.dll
+D:\Rider\FFXIV\TopSellingItems\obj\Release\TopSellingItems.csproj.AssemblyReference.cache
+D:\Rider\FFXIV\TopSellingItems\obj\Release\TopSellingItems.GeneratedMSBuildEditorConfig.editorconfig
+D:\Rider\FFXIV\TopSellingItems\obj\Release\TopSellingItems.AssemblyInfoInputs.cache
+D:\Rider\FFXIV\TopSellingItems\obj\Release\TopSellingItems.AssemblyInfo.cs
+D:\Rider\FFXIV\TopSellingItems\obj\Release\TopSellingItems.csproj.CoreCompileInputs.cache
+D:\Rider\FFXIV\TopSellingItems\obj\Release\TopSellingItems.sourcelink.json
+D:\Rider\FFXIV\TopSellingItems\obj\Release\TopSellingItems.dll

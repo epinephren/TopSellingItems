@@ -10,5 +10,11 @@
     "universalis",
     "economy"
   ],
-  "Punchline": "Find cross-DC market opportunities."
+  "DalamudApiLevel": 15,
+  "LoadRequiredState": 0,
+  "LoadSync": false,
+  "CanUnloadAsync": false,
+  "LoadPriority": 0,
+  "Punchline": "Find cross-DC market opportunities.",
+  "AcceptsFeedback": true
 }
