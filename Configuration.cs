@@ -12,6 +12,7 @@ public sealed class Configuration : IPluginConfiguration
 
     // Store sheet-backed IDs, not display strings.
     public uint SelectedWorldId { get; set; }
+    public uint SelectedDatacenterId { get; set; }
     public uint HomeWorldId { get; set; }
 
     public bool SellOnHomeDatacenter { get; set; } = true;

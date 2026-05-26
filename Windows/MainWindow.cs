@@ -51,7 +51,67 @@ public sealed class MainWindow : Window, IDisposable
         ImGui.Separator();
         this.DrawResultsTable();
     }
+    private void DrawScanTargetSelector()
+{
+    var currentDatacenterId = this.configuration.SelectedDatacenterId;
+    var datacenterIds = this.worldService.GetDatacenterIds();
 
+    ImGui.SetNextItemWidth(220 * ImGuiHelpers.GlobalScale);
+    using (var combo = ImRaii.Combo(
+               "Selected Datacenter",
+               currentDatacenterId == 0 ? "<Select>" : this.worldService.GetDatacenterName(currentDatacenterId)))
+    {
+        if (combo)
+        {
+            foreach (var datacenterId in datacenterIds)
+            {
+                var datacenterName = this.worldService.GetDatacenterName(datacenterId);
+                var isSelected = datacenterId == currentDatacenterId;
+
+                if (ImGui.Selectable(datacenterName, isSelected))
+                {
+                    this.configuration.SelectedDatacenterId = datacenterId;
+
+                    var worlds = this.worldService.GetWorldsForDatacenter(datacenterId);
+                    if (worlds.Count > 0 && this.configuration.SelectedWorldId == 0)
+                        this.configuration.SelectedWorldId = worlds[0].WorldId;
+                }
+
+                if (isSelected)
+                    ImGui.SetItemDefaultFocus();
+            }
+        }
+    }
+
+    if (this.configuration.UseDatacenterScope)
+    {
+        ImGui.TextDisabled("Selected World is optional when datacenter scope is enabled.");
+        return;
+    }
+
+    var currentWorld = this.worldService.GetWorldById(this.configuration.SelectedWorldId);
+    var worldsForDatacenter = this.worldService.GetWorldsForDatacenter(currentDatacenterId);
+
+    ImGui.SetNextItemWidth(260 * ImGuiHelpers.GlobalScale);
+    using (var combo = ImRaii.Combo(
+               "Selected World",
+               currentWorld?.WorldName ?? "<Select>"))
+    {
+        if (combo)
+        {
+            foreach (var world in worldsForDatacenter)
+            {
+                var isSelected = world.WorldId == this.configuration.SelectedWorldId;
+
+                if (ImGui.Selectable(world.DisplayName, isSelected))
+                    this.configuration.SelectedWorldId = world.WorldId;
+
+                if (isSelected)
+                    ImGui.SetItemDefaultFocus();
+            }
+        }
+    }
+}
     private void DrawScanScopeControls()
     {
         ImGui.TextUnformatted("Scan scope");
@@ -76,11 +136,7 @@ public sealed class MainWindow : Window, IDisposable
             ImGui.TextUnformatted("(Warning: Scanning ALL Datacenters may take several minutes! Also includes JP/US)");
         }
 
-        this.DrawWorldSelector(
-            "Selected Datacenter",
-            "Selected World",
-            this.configuration.SelectedWorldId,
-            worldId => this.configuration.SelectedWorldId = worldId);
+        this.DrawScanTargetSelector();
     }
 
     private void DrawHomeScopeControls()

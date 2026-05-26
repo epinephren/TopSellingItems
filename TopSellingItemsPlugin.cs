@@ -43,6 +43,10 @@ public sealed class TopSellingItemsPlugin : IDalamudPlugin
         if (this.configuration.SelectedWorldId == 0 && firstWorld is not null)
             this.configuration.SelectedWorldId = firstWorld.WorldId;
 
+        if (this.configuration.SelectedDatacenterId == 0 && this.configuration.SelectedWorldId != 0)
+            this.configuration.SelectedDatacenterId =
+                this.worldService.GetDatacenterIdForWorld(this.configuration.SelectedWorldId);
+
         if (this.configuration.HomeWorldId == 0)
             this.configuration.HomeWorldId = this.configuration.SelectedWorldId;
 

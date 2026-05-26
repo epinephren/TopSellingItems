@@ -57,8 +57,10 @@ public sealed class MarketScanService
             throw new InvalidOperationException("Home world is not set.");
 
         var selectedWorld = this.worldService.GetWorldById(this.configuration.SelectedWorldId);
-        if (selectedWorld is null)
-            throw new InvalidOperationException("Selected world is not set.");
+        var selectedDatacenterId = this.configuration.SelectedDatacenterId;
+
+        if (selectedDatacenterId == 0 && selectedWorld is not null)
+            selectedDatacenterId = selectedWorld.DatacenterId;
 
         var homeScope = this.configuration.SellOnHomeDatacenter
             ? homeWorld.DatacenterName
@@ -79,9 +81,19 @@ public sealed class MarketScanService
         }
         else
         {
-            var selectedScope = this.configuration.UseDatacenterScope
-                ? selectedWorld.DatacenterName
-                : selectedWorld.WorldName;
+            string selectedScope;
+
+            if (this.configuration.UseDatacenterScope)
+            {
+                selectedScope = this.worldService.GetDatacenterName(selectedDatacenterId);
+            }
+            else
+            {
+                if (selectedWorld is null)
+                    throw new InvalidOperationException("Selected world is not set.");
+
+                selectedScope = selectedWorld.WorldName;
+            }
 
             if (string.IsNullOrWhiteSpace(selectedScope))
                 throw new InvalidOperationException("Selected datacenter/world is not set.");
@@ -210,7 +222,7 @@ public sealed class MarketScanService
                     ItemId = itemId,
                     Name = this.itemScanner.GetItemName(itemId),
                     HomeScope = homeScope,
-                    BestBuyScope = bestBuy.ScopeName,
+                    BestBuyScope = this.FormatBestBuyScope(bestBuy),
                     SalesPerDay = salesPerDay,
                     HomeAverageSalePrice = homeAverageSalePrice,
                     HomeMinListingPrice = homeMinListingPrice,
@@ -233,6 +245,25 @@ public sealed class MarketScanService
         setStatus?.Invoke($"Done. {ordered.Count} cross-DC results.");
 
         return ordered;
+    }
+    
+    private string FormatBestBuyScope(UniversalisCurrentItem bestBuy)
+    {
+        if (!this.configuration.UseDatacenterScope)
+            return bestBuy.ScopeName;
+
+        if (!string.IsNullOrWhiteSpace(bestBuy.WorldName))
+            return $"{bestBuy.ScopeName} ({bestBuy.WorldName})";
+
+        if (bestBuy.WorldId is not null)
+        {
+            var world = this.worldService.GetWorldById(bestBuy.WorldId.Value);
+
+            if (world is not null && !string.IsNullOrWhiteSpace(world.WorldName))
+                return $"{bestBuy.ScopeName} ({world.WorldName})";
+        }
+
+        return bestBuy.ScopeName;
     }
 
     private static double MedianPrice(List<UniversalisSale> sales)

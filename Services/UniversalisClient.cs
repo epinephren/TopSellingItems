@@ -3,13 +3,20 @@ using TopSellingItems.Models;
 
 namespace TopSellingItems.Services;
 
+
+public sealed class UniversalisCurrentItem
+{
+    public uint ItemId { get; set; }
+    public string ScopeName { get; set; } = string.Empty;
+    public int MinListingPrice { get; set; }
+
+    public string? WorldName { get; set; }
+    public uint? WorldId { get; set; }
+}
+
 public sealed class UniversalisClient : IDisposable
 {
     private readonly HttpClient httpClient;
-    private readonly JsonSerializerOptions jsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
 
     public UniversalisClient()
     {
@@ -20,6 +27,7 @@ public sealed class UniversalisClient : IDisposable
 
         this.httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("TopSellingItems/1.0");
     }
+
     public async Task<List<UniversalisCurrentItem>> GetCurrentDataAsync(
         string scope,
         IEnumerable<uint> itemIds,
@@ -46,125 +54,152 @@ public sealed class UniversalisClient : IDisposable
 
         return ParseCurrentResponse(doc.RootElement, idArray, scope);
     }
-    private static List<UniversalisCurrentItem> ParseCurrentResponse(JsonElement root, uint[] requestedIds, string scope)
-{
-    var items = new List<UniversalisCurrentItem>();
 
-    if (TryGetItemCollection(root, out var collection))
+    private static List<UniversalisCurrentItem> ParseCurrentResponse(
+        JsonElement root,
+        uint[] requestedIds,
+        string scope)
     {
-        if (collection.ValueKind == JsonValueKind.Array)
+        var items = new List<UniversalisCurrentItem>();
+
+        if (TryGetItemCollection(root, out var collection))
         {
-            foreach (var el in collection.EnumerateArray())
+            if (collection.ValueKind == JsonValueKind.Array)
             {
-                var parsed = ParseCurrentItem(el, scope);
-                if (parsed is not null)
-                    items.Add(parsed);
+                foreach (var el in collection.EnumerateArray())
+                {
+                    var parsed = ParseCurrentItem(el, scope);
+                    if (parsed is not null)
+                        items.Add(parsed);
+                }
+
+                return items;
             }
 
-            return items;
-        }
-
-        if (collection.ValueKind == JsonValueKind.Object)
-        {
-            foreach (var prop in collection.EnumerateObject())
+            if (collection.ValueKind == JsonValueKind.Object)
             {
-                var parsed = ParseCurrentItem(prop.Value, scope);
-
-                if (parsed is null && uint.TryParse(prop.Name, out var fallbackId))
+                foreach (var prop in collection.EnumerateObject())
                 {
-                    parsed = new UniversalisCurrentItem
+                    var parsed = ParseCurrentItem(prop.Value, scope);
+
+                    if (parsed is null && uint.TryParse(prop.Name, out var fallbackId))
                     {
-                        ItemId = fallbackId,
-                        ScopeName = scope,
-                        MinListingPrice =
-                            TryGetInt(prop.Value, "minPrice") ??
-                            TryGetInt(prop.Value, "minListingPrice") ??
-                            ExtractMinListingFromListings(prop.Value) ??
-                            0
-                    };
-                }
-                else if (parsed is not null && parsed.ItemId == 0 && uint.TryParse(prop.Name, out var keyedId))
-                {
-                    parsed.ItemId = keyedId;
+                        var minListing = ExtractMinListingFromListings(prop.Value);
+
+                        parsed = new UniversalisCurrentItem
+                        {
+                            ItemId = fallbackId,
+                            ScopeName = scope,
+                            MinListingPrice =
+                                TryGetInt(prop.Value, "minPrice") ??
+                                TryGetInt(prop.Value, "minListingPrice") ??
+                                minListing?.Price ??
+                                0,
+                            WorldName = minListing?.WorldName,
+                            WorldId = minListing?.WorldId
+                        };
+                    }
+                    else if (parsed is not null && parsed.ItemId == 0 && uint.TryParse(prop.Name, out var keyedId))
+                    {
+                        parsed.ItemId = keyedId;
+                    }
+
+                    if (parsed is not null)
+                        items.Add(parsed);
                 }
 
-                if (parsed is not null)
-                    items.Add(parsed);
+                return items;
             }
+        }
+
+        if (LooksLikeSingleCurrentItem(root))
+        {
+            var parsed = ParseCurrentItem(root, scope);
+            if (parsed is not null)
+                items.Add(parsed);
 
             return items;
         }
-    }
 
-    if (LooksLikeSingleCurrentItem(root))
-    {
-        var parsed = ParseCurrentItem(root, scope);
-        if (parsed is not null)
-            items.Add(parsed);
+        foreach (var id in requestedIds)
+        {
+            items.Add(new UniversalisCurrentItem
+            {
+                ItemId = id,
+                ScopeName = scope,
+                MinListingPrice = 0
+            });
+        }
 
         return items;
     }
 
-    foreach (var id in requestedIds)
+    private static UniversalisCurrentItem? ParseCurrentItem(JsonElement el, string scope)
     {
-        items.Add(new UniversalisCurrentItem
+        if (!TryGetUInt(el, "itemID", out var itemId) &&
+            !TryGetUInt(el, "itemId", out itemId))
         {
-            ItemId = id,
+            return null;
+        }
+
+        var minListing = ExtractMinListingFromListings(el);
+
+        return new UniversalisCurrentItem
+        {
+            ItemId = itemId,
             ScopeName = scope,
-            MinListingPrice = 0
-        });
+            MinListingPrice =
+                TryGetInt(el, "minPrice") ??
+                TryGetInt(el, "minListingPrice") ??
+                minListing?.Price ??
+                0,
+            WorldName = minListing?.WorldName,
+            WorldId = minListing?.WorldId
+        };
     }
 
-    return items;
-}
-
-private static UniversalisCurrentItem? ParseCurrentItem(JsonElement el, string scope)
-{
-    if (!TryGetUInt(el, "itemID", out var itemId) &&
-        !TryGetUInt(el, "itemId", out itemId))
+    private static bool LooksLikeSingleCurrentItem(JsonElement root)
     {
-        return null;
+        return root.ValueKind == JsonValueKind.Object &&
+               (root.TryGetProperty("itemID", out _) || root.TryGetProperty("itemId", out _));
     }
 
-    return new UniversalisCurrentItem
+    private static (int Price, string? WorldName, uint? WorldId)? ExtractMinListingFromListings(JsonElement el)
     {
-        ItemId = itemId,
-        ScopeName = scope,
-        MinListingPrice =
-            TryGetInt(el, "minPrice") ??
-            TryGetInt(el, "minListingPrice") ??
-            ExtractMinListingFromListings(el) ??
-            0
-    };
-}
+        if (!el.TryGetProperty("listings", out var listings) || listings.ValueKind != JsonValueKind.Array)
+            return null;
 
-private static bool LooksLikeSingleCurrentItem(JsonElement root)
-{
-    return root.ValueKind == JsonValueKind.Object &&
-           (root.TryGetProperty("itemID", out _) || root.TryGetProperty("itemId", out _));
-}
-
-private static int? ExtractMinListingFromListings(JsonElement el)
-{
-    if (el.TryGetProperty("listings", out var listings) && listings.ValueKind == JsonValueKind.Array)
-    {
-        int? min = null;
+        int? minPrice = null;
+        string? worldName = null;
+        uint? worldId = null;
 
         foreach (var listing in listings.EnumerateArray())
         {
             var price = TryGetInt(listing, "pricePerUnit");
-            if (price is null)
+            if (price is null || price <= 0)
                 continue;
 
-            min = min is null ? price : Math.Min(min.Value, price.Value);
+            if (minPrice is not null && price.Value >= minPrice.Value)
+                continue;
+
+            minPrice = price.Value;
+
+            worldName = listing.TryGetProperty("worldName", out var worldNameProp)
+                ? worldNameProp.GetString()
+                : null;
+
+            worldId = TryGetUInt(listing, "worldID", out var parsedWorldId)
+                ? parsedWorldId
+                : TryGetUInt(listing, "worldId", out parsedWorldId)
+                    ? parsedWorldId
+                    : null;
         }
 
-        return min;
+        return minPrice is null
+            ? null
+            : (minPrice.Value, worldName, worldId);
     }
 
-    return null;
-}
-    
     public async Task<List<UniversalisHistoryItem>> GetHistoryAsync(
         string scope,
         IEnumerable<uint> itemIds,
@@ -198,7 +233,6 @@ private static int? ExtractMinListingFromListings(JsonElement el)
 
         if (TryGetItemCollection(root, out var collection))
         {
-            // ARRAY FORMAT
             if (collection.ValueKind == JsonValueKind.Array)
             {
                 foreach (var el in collection.EnumerateArray())
@@ -211,7 +245,6 @@ private static int? ExtractMinListingFromListings(JsonElement el)
                 return items;
             }
 
-            // OBJECT FORMAT (FIX)
             if (collection.ValueKind == JsonValueKind.Object)
             {
                 foreach (var prop in collection.EnumerateObject())
@@ -275,9 +308,7 @@ private static int? ExtractMinListingFromListings(JsonElement el)
         };
 
         if (el.TryGetProperty("entries", out var history) && history.ValueKind == JsonValueKind.Array)
-        {
             ParseSales(history, item.RecentHistory);
-        }
 
         return item;
     }
@@ -291,9 +322,7 @@ private static int? ExtractMinListingFromListings(JsonElement el)
         };
 
         if (el.TryGetProperty("entries", out var history) && history.ValueKind == JsonValueKind.Array)
-        {
             ParseSales(history, item.RecentHistory);
-        }
 
         return item;
     }
@@ -329,11 +358,13 @@ private static int? ExtractMinListingFromListings(JsonElement el)
     private static bool TryGetUInt(JsonElement el, string name, out uint value)
     {
         value = 0;
+
         if (el.TryGetProperty(name, out var p) && p.TryGetUInt32(out var v))
         {
             value = v;
             return true;
         }
+
         return false;
     }
 
